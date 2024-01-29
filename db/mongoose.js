@@ -3,7 +3,7 @@
 const mongoose = require('mongoose');
  
 mongoose.Promise = global.Promise;
-mongoose.connect('mongodb+srv://rohittbairwaa11:mvjsWIQodenJnwKj@cluster0.tl3zbxo.mongodb.net/AttendanceTracker').then(() => {
+mongoose.connect('mongodb+srv://rohittbairwaa11:mvjsWIQodenJnwKj@cluster0.tl3zbxo.mongodb.net/AttendanceApp').then(() => {
     console.log("Connected to MongoDB successfully :)");
 }).catch((e) => {
     console.log("Error while attempting to connect to MongoDB");

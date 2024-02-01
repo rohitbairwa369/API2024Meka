@@ -135,7 +135,7 @@ app.put('/user', (req, res) => {
 });
 
 
-app.put('/user/attendance', async (req, res) => {
+app.put('/user/attendance/clockin/:month/:year', async (req, res) => {
   try {
     let token = req.headers["x-access-token"];
     if (!token) res.send({ auth: false, token: "No Token Provided" });
@@ -148,8 +148,10 @@ app.put('/user/attendance', async (req, res) => {
         { $push: { attendance: req.body } },
         { new: true }
       );
-
-      res.json(updatedUser.attendance.reverse());
+      const filteredAttendance = updatedUser.attendance.filter(item => {
+        return item.month ? item.month.toLowerCase() === req.params.month.toLowerCase() && item.year == req.params.year :[];
+      });
+      res.json(filteredAttendance.reverse());
     })
   } catch (error) {
     console.error(error);
@@ -190,7 +192,7 @@ app.put('/user/attendance/in/:tdate', async (req, res) => {
   }
 });
 
-app.put('/user/attendance/out/:tdate', async (req, res) => {
+app.put('/user/attendance/out/:month/:year/:tdate', async (req, res) => {
   try {
     const token = req.headers["x-access-token"];
     if (!token) return res.send({ auth: false, token: "No Token Provided" });
@@ -215,7 +217,11 @@ app.put('/user/attendance/out/:tdate', async (req, res) => {
         return res.status(404).json({ error: 'User not found.' });
       }
 
-      res.json(result.attendance.reverse());
+      const filteredAttendance = result.attendance.filter(item => {
+        return item.month ? item.month.toLowerCase() === req.params.month.toLowerCase() && item.year == req.params.year :[];
+      });
+
+      res.json(filteredAttendance.reverse());
     });
   } catch (error) {
     console.error(error);
@@ -232,7 +238,7 @@ app.get('/verify/token', (req, res) => {
   })
 });
 
-app.get('/user/attendance', async (req, res) => {
+app.get('/user/attendance/clockin/:month/:year', async (req, res) => {
   try {
     let token = req.headers["x-access-token"];
     if (!token) res.send({ auth: false, token: "No Token Provided" });
@@ -240,7 +246,10 @@ app.get('/user/attendance', async (req, res) => {
     jwt.verify(token, config.secret, async (err, user) => {
       if (err) return res.send({ auth: false, token: "Invalid Token" });
       const UserData = await User.findById(user.id);
-      res.json(UserData.attendance);
+      const filteredAttendance = UserData.attendance.filter(item => {
+        return item.month ? item.month.toLowerCase() === req.params.month.toLowerCase() && item.year == req.params.year :[];
+      });
+      res.json(filteredAttendance);
     })
   } catch (error) {
     console.error(error);
@@ -303,7 +312,7 @@ app.get('/user/attendance/absent/:year', async (req, res) => {
         return (item.year === req.params.year && item.status.toLowerCase() == 'absent');
       });
 
-      res.json(filteredAttendance);
+      res.json(filteredAttendance.reverse());
     })
   } catch (error) {
     console.error(error);
@@ -324,7 +333,7 @@ app.get('/user/attendance/:month/:year/:status', async (req, res) => {
         return  item.month.toLowerCase() === req.params.month.toLowerCase() && item.year == req.params.year && item.status.toLowerCase() == req.params.status.toLowerCase();
       });
 
-      res.json(filteredAttendance);
+      res.json(filteredAttendance.reverse());
     })
   } catch (error) {
     console.error(error);
@@ -355,7 +364,7 @@ app.get('/messages', verifyToken, (req, res) => {
   Inbox.find({}).then(item=>{
     res.send(item)
   },err=>{
-    res.send(item)
+    res.send(item.reverse())
   })
 });
 

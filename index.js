@@ -362,7 +362,7 @@ function calculateTotalHours(startTime, endTime) {
 //api for inbox messages
 app.get('/messages', verifyToken, (req, res) => {
   Inbox.find({}).then(item=>{
-    res.send(item)
+    res.send(item.reverse())
   },err=>{
     res.send(item.reverse())
   })

@@ -159,6 +159,34 @@ app.put('/user/attendance/clockin/:month/:year', async (req, res) => {
   }
 });
 
+app.put('/user/attendance/requestleave', async (req, res) => {
+  try {
+    let token = req.headers["x-access-token"];
+    if (!token) res.send({ auth: false, token: "No Token Provided" });
+    jwt.verify(token, config.secret, async (err, user) => {
+      if (err) return res.send({ auth: false, token: "Invalid Token" });
+
+      let canRequest = await User.findById(user.id)
+      canRequestBoolean = canRequest.attendance.filter(item=>{
+        return item.month == req.body[0].month && item.date == req.body[0].date 
+      })
+      if(canRequestBoolean.length==0){
+        const updatedUser = await User.findByIdAndUpdate(
+          user.id,
+          { $push: { attendance: { $each: req.body } } },
+          { new: true }
+      );
+      res.json({error: false ,message:'Leave Requested Successfully!'});
+      }else{
+        res.json({error: true ,message:'Invalid Request'});
+      }
+    })
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ error: 'Internal Server Error' });
+  }
+});
+
 app.put('/user/attendance/in/:tdate', async (req, res) => {
   try {
     const token = req.headers["x-access-token"];

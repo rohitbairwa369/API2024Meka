@@ -3,7 +3,8 @@ const mongoose = require("mongoose");
 const InboxSchema = new mongoose.Schema({
   name: {
     type: String,
-    required: true
+    required: true,
+    default : ''
   },
   email: {
     type: String,
@@ -13,6 +14,11 @@ const InboxSchema = new mongoose.Schema({
     type:String,
     required: true,
     trim:true
+  },
+  profilePic:{
+    type: String,
+    required: true,
+    default : ''
   },
   date: {
     type: Date,

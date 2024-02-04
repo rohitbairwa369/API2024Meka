@@ -3,7 +3,8 @@ const mongoose = require("mongoose");
 const UserSchema = new mongoose.Schema({
   name: {
     type: String,
-    trim:true
+    trim:true,
+    default : ''
   },
   email: {
     type: String,
@@ -23,6 +24,7 @@ const UserSchema = new mongoose.Schema({
   },
   profilePic: {
     type: String,
+    default : ''
   },
   designation: {
     type: String,

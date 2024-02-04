@@ -406,9 +406,14 @@ app.post('/messages', (req, res) => {
 
     const userData = await User.findById(user.id);
 
-    if(userData && userData.role == 'admin'){
+    if(userData){
       // Assuming the request body contains data for the Inbox
-      var inboxData = req.body;
+      var inboxData = {
+        name : userData.name,
+        email: userData.email,
+        profilePic: userData.profilePic,
+        message : req.body.message
+      }
     
       // Create a new Inbox instance using the provided data
       const newInbox = new Inbox(inboxData);

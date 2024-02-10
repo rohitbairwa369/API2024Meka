@@ -123,10 +123,10 @@ app.put('/user', (req, res) => {
   // console.log(token)
   if (!token) res.send({ auth: false, token: "No Token Provided" });
   //jwt verify
-  jwt.verify(token, config.secret, (err, user) => {
+  jwt.verify(token, config.secret, async (err, user) => {
     if (err) return res.send({ auth: false, token: "Invalid Token" });
    
-  User.findByIdAndUpdate(user.id, updateData).then((content) => {
+  await User.findByIdAndUpdate(user.id, updateData).then((content) => {
       res.send({'message':'Successfully Updated'})
   },(err)=>{
     res.send({'message':err})
@@ -151,7 +151,8 @@ app.put('/user/attendance/clockin/:month/:year', async (req, res) => {
       const filteredAttendance = updatedUser.attendance.filter(item => {
         return item.month ? item.month.toLowerCase() === req.params.month.toLowerCase() && item.year == req.params.year :[];
       });
-      res.json(filteredAttendance.reverse());
+      const todaysDate = new Date()
+      res.json(filteredAttendance.sort((a,b)=>b.date-a.date).filter(item=>item.date<=todaysDate.getDate()));
     })
   } catch (error) {
     console.error(error);
@@ -248,8 +249,8 @@ app.put('/user/attendance/out/:month/:year/:tdate', async (req, res) => {
       const filteredAttendance = result.attendance.filter(item => {
         return item.month ? item.month.toLowerCase() === req.params.month.toLowerCase() && item.year == req.params.year :[];
       });
-
-      res.json(filteredAttendance.reverse());
+      const todaysDate = new Date()
+      res.json(filteredAttendance.sort((a,b)=>b.date-a.date).filter(item=>item.date<=todaysDate.getDate()));
     });
   } catch (error) {
     console.error(error);
@@ -297,8 +298,8 @@ app.get('/user/attendance/:month/:year', async (req, res) => {
       const filteredAttendance = userData.attendance.filter(item => {
         return item.month ? item.month.toLowerCase() === req.params.month.toLowerCase() && item.year == req.params.year :[];
       });
-
-      res.json(filteredAttendance.reverse());
+      const todaysDate = new Date()
+      res.json(filteredAttendance.sort((a,b)=>b.date-a.date).filter(item=>item.date<=todaysDate.getDate()));
     })
   } catch (error) {
     console.error(error);
@@ -318,8 +319,7 @@ app.get('/user/attendance/:year', async (req, res) => {
       const filteredAttendance = userData.attendance.filter(item => {
         return item.year === req.params.year 
       });
-
-      res.json(filteredAttendance);
+      res.json(filteredAttendance.sort((a,b)=>b.date-a.date));
     })
   } catch (error) {
     console.error(error);
@@ -340,7 +340,7 @@ app.get('/user/attendance/absent/:year', async (req, res) => {
         return (item.year === req.params.year && item.status.toLowerCase() == 'absent');
       });
 
-      res.json(filteredAttendance.reverse());
+      res.json(filteredAttendance.sort((a,b)=>b.date-a.date));
     })
   } catch (error) {
     console.error(error);
@@ -361,7 +361,7 @@ app.get('/user/attendance/:month/:year/:status', async (req, res) => {
         return  item.month.toLowerCase() === req.params.month.toLowerCase() && item.year == req.params.year && item.status.toLowerCase() == req.params.status.toLowerCase();
       });
 
-      res.json(filteredAttendance.reverse());
+      res.json(filteredAttendance);
     })
   } catch (error) {
     console.error(error);

@@ -116,6 +116,23 @@ app.get("/users",verifyToken,(req, res) => {
       res.send(e);
     });
 });
+app.get("/user/:id",verifyToken,(req, res) => {
+   // Get ID from request parameters
+   const userId = req.params.id;
+
+   // Find user by ID
+   User.findById(userId)
+     .then((user) => {
+       if (!user) {
+         return res.status(404).json({ success: false, message: 'User not found' });
+       }
+       res.status(200).json({ success: true, ...user._doc });
+     })
+     .catch((err) => {
+       res.status(500).json({ success: false, message: 'Internal server error', error: err.message });
+     });
+});
+
 
 app.put('/user', (req, res) => {
   const updateData = req.body;
@@ -133,6 +150,38 @@ app.put('/user', (req, res) => {
   })
 });
 });
+
+
+//add holidays
+app.put('/holidays', async (req, res) => {
+  try {
+    let token = req.headers["x-access-token"];
+    if (!token) return res.status(401).json({ auth: false, message: "No Token Provided" });
+
+    jwt.verify(token, config.secret, async (err, decoded) => {
+      if (err) return res.status(401).json({ auth: false, message: "Invalid Token" });
+
+      const user = await User.findById(decoded.id);
+      if (!user) return res.status(404).json({ auth: false, message: "User not found" });
+
+      if (user.role !== 'admin') return res.status(403).json({ auth: false, message: "Unauthorized" });
+
+      const newHolidays = req.body;
+      if (!newHolidays || !Array.isArray(newHolidays)) {
+        return res.status(400).json({ message: "Invalid holidays data" });
+      }
+
+      // Update holidays for all users
+      await User.updateMany({}, { $addToSet: { attendance: { $each: newHolidays } } });
+
+      res.json({ message: 'Holidays updated successfully for all users' });
+    });
+  } catch (error) {
+    console.error("Error:", error);
+    res.status(500).json({ error: error.message });
+  }
+});
+
 
 
 app.put('/user/attendance/clockin/:month/:year', async (req, res) => {

@@ -418,6 +418,42 @@ app.get('/user/attendance/:month/:year/:status', async (req, res) => {
   }
 });
 
+app.get('/user/attendance/:month/:year/:id/:status', async (req, res) => {
+  try {
+    let token = req.headers["x-access-token"];
+    if (!token) res.send({ auth: false, token: "No Token Provided" });
+
+    jwt.verify(token, config.secret, async (err, user) => {
+      if (err) return res.send({ auth: false, token: "Invalid Token" });
+
+      const adminData = await User.findById(user.id);
+      const holidaysInYear = adminData.holidays;
+      if(adminData.role == 'admin'){
+        internData = await User.findById(req.params.id)
+        const filteredAttendance = internData.attendance.filter(item => {
+          return  item.month.toLowerCase() === req.params.month.toLowerCase() && item.year == req.params.year && item.status.toLowerCase() == req.params.status.toLowerCase();
+        });
+        if(holidaysInYear){
+        // newFiltered =filteredAttendance.filter(item => !holidaysInYear.includes(item));
+        const holidayDates = holidaysInYear.map(holiday => `${holiday.month}-${holiday.date}-${holiday.year}`);
+
+        const filteredArray = filteredAttendance.filter(entry => {
+        const entryDate = `${entry.month}-${entry.date}-${entry.year}`;
+        return !holidayDates.includes(entryDate);
+        });
+
+        res.json(filteredArray);
+        }
+      }else{
+        res.status(500).json({ error: 'You are not admin' })
+      }
+    })
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ error: 'Internal Server Error' });
+  }
+});
+
 
 function calculateTotalHours(startTime, endTime) {
   // Convert date and time strings to Date objects

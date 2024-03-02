@@ -11,6 +11,9 @@ const UserSchema = new mongoose.Schema({
     required: true,
     trim:true
   },
+  holidays:{
+    type:Array
+  },
   password: {
     type: String,
     required: true,
@@ -24,7 +27,7 @@ const UserSchema = new mongoose.Schema({
   },
   profilePic: {
     type: String,
-    default : ''
+    default : '../../assets/userProfile.jpg'
   },
   designation: {
     type: String,

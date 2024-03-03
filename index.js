@@ -458,7 +458,7 @@ app.get('/user/attendance/:month/:year/:id/:status', async (req, res) => {
         return !holidayDates.includes(entryDate);
         });
         let averageHrs = 0;
-        const totalHrs = 0;
+        let totalHrs = 0;
         let dayhours = []
         let dayDates = []
         filteredArray.forEach(item=>{
@@ -475,9 +475,9 @@ app.get('/user/attendance/:month/:year/:id/:status', async (req, res) => {
             teamCategory:internData.teamCategory || 'none',
             profilePic: internData.profilePic || '../../assets/userProfile.jpg',
             designation:internData.designation || 'intern',
-            attendance:filteredArray,
+            attendanceForLeaves:filteredArray,
             address:internData.hrName || 'none',
-            totalLeaves: internData.length,
+            totalLeaves: filteredArray.length,
             averageHours:averageHrs,
             analiticsData : {
               hours:dayhours,

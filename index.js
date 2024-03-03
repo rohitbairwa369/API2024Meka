@@ -110,7 +110,23 @@ app.get("/user", (req, res) => {
 app.get("/users",verifyToken,(req, res) => {
   User.find({})
     .then((content) => {
-      res.send(content);
+     let userData = content || []
+     let filteredData = []
+     userData.forEach(i=>{
+        if(i.role!='admin'){
+          filteredData.push({
+            _id:i._id,
+            name:i.name,
+            email:i.email,
+            reportingTo: i.reportingTo || 'none',
+            teamCategory:i.teamCategory || 'none',
+            profilePic: i.profilePic || '../../assets/userProfile.jpg',
+            designation:i.designation || 'intern',
+            address:i.hrName || 'none',
+          })
+        }
+      })
+      res.send(filteredData);
     })
     .catch((e) => {
       res.send(e);
@@ -441,8 +457,35 @@ app.get('/user/attendance/:month/:year/:id/:status', async (req, res) => {
         const entryDate = `${entry.month}-${entry.date}-${entry.year}`;
         return !holidayDates.includes(entryDate);
         });
+        let averageHrs = 0;
+        const totalHrs = 0;
+        let dayhours = []
+        let dayDates = []
+        filteredArray.forEach(item=>{
+          totalHrs += item.hours;
+          dayhours.push(item.hours)
+          dayDates.push(`${item.month}-${item.date}-${item.year}`)
+        })
+        averageHrs = totalHrs/filteredArray.length;
 
-        res.json(filteredArray);
+        internInfo = {
+            name:internData.name,
+            email:internData.email,
+            reportingTo: internData.reportingTo || 'none',
+            teamCategory:internData.teamCategory || 'none',
+            profilePic: internData.profilePic || '../../assets/userProfile.jpg',
+            designation:internData.designation || 'intern',
+            attendance:filteredArray,
+            address:internData.hrName || 'none',
+            totalLeaves: internData.length,
+            averageHours:averageHrs,
+            analiticsData : {
+              hours:dayhours,
+              dates:dayDates
+            }
+        }
+
+        res.json(internInfo);
         }
       }else{
         res.status(500).json({ error: 'You are not admin' })

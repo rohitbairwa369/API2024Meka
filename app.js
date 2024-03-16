@@ -1,3 +1,5 @@
+require('dotenv').config();
+
 const jwt = require("jsonwebtoken");
 const bcrypt = require("bcryptjs");
 const express = require("express");
@@ -24,7 +26,8 @@ const config = {
   secret: "SuperSecret",
 };
 
-app.listen(3000, () => {
+const PORT = process.env.PORT || 3000
+app.listen(PORT, () => {
   console.log("Server is listening on port 3000");
 });
 

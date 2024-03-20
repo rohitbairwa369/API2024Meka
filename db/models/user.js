@@ -6,6 +6,9 @@ const UserSchema = new mongoose.Schema({
     trim:true,
     default : ''
   },
+  gender:{
+    type:String
+  },
   email: {
     type: String,
     required: true,
@@ -13,6 +16,9 @@ const UserSchema = new mongoose.Schema({
   },
   holidays:{
     type:Array
+  },
+  birthDate:{
+  type:Date
   },
   password: {
     type: String,
@@ -41,6 +47,9 @@ const UserSchema = new mongoose.Schema({
   role: {
     type: String,
     default: "user",
+  },
+  contact:{
+    type:Number
   },
   attendance:{
     type:Array,

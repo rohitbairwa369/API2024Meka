@@ -15,7 +15,8 @@ const UserSchema = new mongoose.Schema({
     trim:true
   },
   holidays:{
-    type:Array
+    type:Array,
+    default:[]
   },
   birthDate:{
   type:Date

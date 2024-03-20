@@ -42,6 +42,8 @@ app.post("/user/register", (req, res) => {
       let newlist = new User({
         email: req.body.email,
         password: hashpassword,
+        name: req.body.name,
+        gender: req.body.gender
       });
       newlist.save().then((listdoc) => {
         res.send(listdoc);
@@ -191,7 +193,7 @@ app.put('/holidays', async (req, res) => {
       }
 
       // Update holidays for all users
-      await User.updateMany({}, { $addToSet: { attendance: { $each: newHolidays } } });
+      await User.updateMany({}, { $addToSet: { holidays: { $each: newHolidays } } });
 
       res.json({ message: 'Holidays updated successfully for all users' });
     });

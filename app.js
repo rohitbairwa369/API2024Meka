@@ -137,6 +137,35 @@ app.get("/users",verifyToken,(req, res) => {
       res.send(e);
     });
 });
+
+app.get("/birthday/:month", (req, res) => {
+  const { month } = req.params;
+
+  // Validate month input
+  const monthNumber = parseInt(month);
+  if (isNaN(monthNumber) || monthNumber < 1 || monthNumber > 12) {
+    return res.status(400).json({ error: "Invalid month provided. Month must be a number between 1 and 12." });
+  }
+
+  // Find users whose birthday falls in the given month
+  User.find({}).then((users) => {
+    const usersWithBirthdayInMonth = users.filter(user => {
+      const userBirthdayMonth = new Date(user.birthDate).getMonth() + 1; // Month is zero-based in JavaScript
+      return userBirthdayMonth === monthNumber;
+    }).map(user => ({
+      _id : user.id,
+      profilePic: user.profilePic,
+      name: user.name,
+      email: user.email,
+      birthday: user.birthDate
+    }));
+
+    res.json(usersWithBirthdayInMonth);
+  }).catch((error) => {
+    res.status(500).json({ error: "Internal Server Error" });
+  });
+});
+
 app.get("/user/:id",verifyToken,(req, res) => {
    // Get ID from request parameters
    const userId = req.params.id;

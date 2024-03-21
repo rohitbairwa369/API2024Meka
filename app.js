@@ -138,7 +138,7 @@ app.get("/users",verifyToken,(req, res) => {
     });
 });
 
-app.get("/birthday/:month", (req, res) => {
+app.get("/birthday/:month",verifyToken, (req, res) => {
   const { month } = req.params;
 
   // Validate month input

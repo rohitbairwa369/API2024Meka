@@ -203,6 +203,29 @@ app.put('/holidays', async (req, res) => {
   }
 });
 
+app.get('/holidays/reset', async (req, res) => {
+  try {
+    let token = req.headers["x-access-token"];
+    if (!token) return res.status(401).json({ auth: false, message: "No Token Provided" });
+
+    jwt.verify(token, config.secret, async (err, decoded) => {
+      if (err) return res.status(401).json({ auth: false, message: "Invalid Token" });
+
+      const user = await User.findById(decoded.id);
+      if (!user) return res.status(404).json({ auth: false, message: "User not found" });
+
+      if (user.role !== 'admin') return res.status(403).json({ auth: false, message: "Unauthorized" });
+
+      // Update holidays for all users
+      await User.updateMany({holidays: [] });
+
+      res.json({ message: 'Holidays reset successfully for all users' });
+    });
+  } catch (error) {
+    console.error("Error:", error);
+    res.status(500).json({ error: error.message });
+  }
+});
 
 
 app.put('/user/attendance/clockin/:month/:year', async (req, res) => {
@@ -430,7 +453,6 @@ app.get('/user/attendance/:month/:year/:status', async (req, res) => {
       const filteredAttendance = userData.attendance.filter(item => {
         return  item.month.toLowerCase() === req.params.month.toLowerCase() && item.year == req.params.year && item.status.toLowerCase() == req.params.status.toLowerCase();
       });
-
       res.json(filteredAttendance);
     })
   } catch (error) {

@@ -532,7 +532,7 @@ app.get('/user/attendance/:month/:year/:id/:status', async (req, res) => {
             profilePic: internData.profilePic || '../../assets/userProfile.jpg',
             designation:internData.designation || 'intern',
             attendanceForLeaves:filteredArray,
-            address:internData.hrName || 'none',
+            address:internData.address || 'none',
             totalLeaves: filteredArray.length,
             averageHours:averageHrs,
             analiticsData : {

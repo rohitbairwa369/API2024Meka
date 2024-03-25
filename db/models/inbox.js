@@ -15,10 +15,11 @@ const InboxSchema = new mongoose.Schema({
     required: true,
     trim:true
   },
-  profilePic:{
-    type: String,
-    required: true,
-    default : ''
+  fromDate:{
+    type:Date
+  },
+  toDate:{
+    type:Date
   },
   date: {
     type: Date,

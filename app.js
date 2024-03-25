@@ -595,7 +595,8 @@ app.post('/messages', (req, res) => {
       var inboxData = {
         name : userData.name,
         email: userData.email,
-        profilePic: userData.profilePic,
+        fromDate: userData.fromDate,
+        toDate:userDate.toDate,
         message : req.body.message
       }
     

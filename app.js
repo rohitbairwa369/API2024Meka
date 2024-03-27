@@ -518,12 +518,11 @@ app.get('/user/attendance/:month/:year/:id/:status', async (req, res) => {
         let dayhours = []
         let dayDates = []
         filteredArray.forEach(item=>{
-          totalHrs += item.hours;
+          totalHrs += parseInt(item.hours);
           dayhours.push(item.hours)
           dayDates.push(`${item.month}-${item.date}-${item.year}`)
         })
         averageHrs = totalHrs/filteredArray.length;
-
         internInfo = {
             name:internData.name,
             email:internData.email,

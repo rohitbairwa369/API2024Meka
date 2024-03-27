@@ -18,6 +18,9 @@ const InboxSchema = new mongoose.Schema({
   fromDate:{
     type:Date
   },
+  category:{
+    type:String
+  },
   toDate:{
     type:Date
   },

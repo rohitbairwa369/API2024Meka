@@ -594,9 +594,10 @@ app.post('/messages', (req, res) => {
       var inboxData = {
         name : userData.name,
         email: userData.email,
-        fromDate: userData.fromDate,
-        toDate:userDate.toDate,
-        message : req.body.message
+        fromDate: req.body.fromDate,
+        toDate:req.body.toDate,
+        message : req.body.message,
+        category: req.body.category
       }
     
       // Create a new Inbox instance using the provided data

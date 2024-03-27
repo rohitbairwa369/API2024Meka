@@ -496,7 +496,14 @@ app.get('/user/attendance/:month/:year/:status', async (req, res) => {
       const filteredAttendance = userData.attendance.filter(item => {
         return  item.month.toLowerCase() === req.params.month.toLowerCase() && item.year == req.params.year && item.status.toLowerCase() == req.params.status.toLowerCase();
       });
-      res.json(filteredAttendance);
+      holidaysInYear = userData.holidays;
+      if(holidaysInYear){
+        var newHolidayListbyMonth = holidaysInYear.filter(item=>{
+           return item.month == req.params.month
+         })
+       }
+       var newFilredAttendanceWithHolidays = [...filteredAttendance ,...newHolidayListbyMonth]
+      res.json(newFilredAttendanceWithHolidays);
     })
   } catch (error) {
     console.error(error);

@@ -293,10 +293,24 @@ app.put('/user/attendance/requestleave', async (req, res) => {
       canRequestBoolean = canRequest.attendance.filter(item=>{
         return item.month == req.body[0].month && item.date == req.body[0].date 
       })
+      var filteredDatesArray = req.body;
+      var monthsHoliday = canRequest.holidays.filter(item=>{
+        return item.month == req.body[0].month
+      })
+      var holidaysInYear = canRequest.holidays
+      if(holidaysInYear){
+        // newFiltered =filteredAttendance.filter(item => !holidaysInYear.includes(item));
+        const holidayDates = holidaysInYear.map(holiday => `${holiday.month}-${holiday.date}-${holiday.year}`);
+
+        var newFilteredArray = filteredDatesArray.filter(entry => {
+        const entryDate = `${entry.month}-${entry.date}-${entry.year}`;
+        return !holidayDates.includes(entryDate);
+        });
+           }
       if(canRequestBoolean.length==0){
         const updatedUser = await User.findByIdAndUpdate(
           user.id,
-          { $push: { attendance: { $each: req.body } } },
+          { $push: { attendance: { $each: newFilteredArray } } },
           { new: true }
       );
       res.json({error: false ,message:'Leave Requested Successfully!'});
@@ -420,7 +434,7 @@ app.get('/user/attendance/:month/:year', async (req, res) => {
       const filteredAttendance = userData.attendance.filter(item => {
         return item.month ? item.month.toLowerCase() === req.params.month.toLowerCase() && item.year == req.params.year :[];
       });
-      const todaysDate = new Date()
+            const todaysDate = new Date()
       res.json(filteredAttendance.sort((a,b)=>b.date-a.date).filter(item=>item.date<=todaysDate.getDate()));
     })
   } catch (error) {

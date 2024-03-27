@@ -68,6 +68,17 @@ const UserSchema = new mongoose.Schema({
   },
 });
 
+// Middleware to ensure unique values in the attendance array during updates
+UserSchema.pre('findByIdAndUpdate', function(next) {
+  const update = this.getUpdate();
+  if (update.$addToSet && update.$addToSet.attendance) {
+    // If $addToSet is used to add to the attendance array
+    const uniqueAttendance = [...new Set(update.$addToSet.attendance)];
+    this.update({}, { $set: { attendance: uniqueAttendance } });
+  }
+  next();
+});
+
 
 const User = mongoose.model('User', UserSchema);
  

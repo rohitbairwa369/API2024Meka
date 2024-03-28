@@ -32,25 +32,47 @@ app.listen(PORT, () => {
 });
 
 // Registration
-app.post("/user/register", (req, res) => {
-  // encrypt password
-  User.find({ email: req.body.email }).then((data) => {
-    if (data.length > 0) {
-      res.send({ errorMessage: "Email already taken" });
-    } else {
-      let hashpassword = bcrypt.hashSync(req.body.password, 8);
-      let newlist = new User({
-        email: req.body.email,
-        password: hashpassword,
-        name: req.body.name,
-        gender: req.body.gender
-      });
-      newlist.save().then((listdoc) => {
-        res.send(listdoc);
-      });
+app.post("/user/register", async (req, res) => {
+  try {
+    // Verify token
+    let token = req.headers["x-access-token"];
+    if (!token) return res.send({ auth: false, token: "No Token Provided" });
+    
+    const decoded = jwt.verify(token, config.secret);
+    const userId = decoded.id;
+    
+    // Fetch user holidays
+    const userHolidays = await User.findOne({_id: userId});
+
+    // Check if email is already taken
+    const existingUser = await User.findOne({ email: req.body.email });
+    if (existingUser) {
+      return res.send({ errorMessage: "Email already taken" });
     }
-  });
+
+    // Hash password
+    const hashpassword = bcrypt.hashSync(req.body.password, 8);
+
+    // Create new user
+    const newUser = new User({
+      email: req.body.email,
+      password: hashpassword,
+      name: req.body.name,
+      gender: req.body.gender,
+      birthDate: Date(),
+      holidays: userHolidays.holidays
+    });
+
+    // Save new user
+    const savedUser = await newUser.save();
+    
+    res.send({success:true,error:false,message:"User Added Successfully"});
+  } catch (error) {
+    console.error(error);
+    res.status(500).send({ error: "Server error" });
+  }
 });
+
 
 // Registration
 app.post("/admin/register", (req, res) => {
@@ -127,7 +149,7 @@ app.get("/users",verifyToken,(req, res) => {
             teamCategory:i.teamCategory || 'none',
             profilePic: i.profilePic || '../../assets/userProfile.jpg',
             designation:i.designation || 'intern',
-            address:i.hrName || 'none',
+            address:i.address || 'none',
           })
         }
       })
@@ -225,6 +247,29 @@ app.put('/holidays', async (req, res) => {
       await User.updateMany({}, { $addToSet: { holidays: { $each: newHolidays } } });
 
       res.json({ message: 'Holidays updated successfully for all users' });
+    });
+  } catch (error) {
+    console.error("Error:", error);
+    res.status(500).json({ error: error.message });
+  }
+});
+
+app.get('/holidays/:month', async (req, res) => {
+  try {
+    let token = req.headers["x-access-token"];
+    if (!token) return res.status(401).json({ auth: false, message: "No Token Provided" });
+
+    jwt.verify(token, config.secret, async (err, decoded) => {
+      if (err) return res.status(401).json({ auth: false, message: "Invalid Token" });
+
+      const user = await User.findById(decoded.id);
+      if (!user) return res.status(404).json({ auth: false, message: "User not found" });
+
+      const holidays =  user.holidays || []
+      filteredHolidayByMonth =holidays.filter(item=>{
+        return item.month == req.params.month
+      })
+      res.json(filteredHolidayByMonth);
     });
   } catch (error) {
     console.error("Error:", error);

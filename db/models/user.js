@@ -19,7 +19,8 @@ const UserSchema = new mongoose.Schema({
     default:[]
   },
   birthDate:{
-  type:Date
+  type:Date,
+  default: Date.now()
   },
   password: {
     type: String,

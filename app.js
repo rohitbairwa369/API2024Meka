@@ -223,6 +223,28 @@ app.put('/user', (req, res) => {
 });
 });
 
+app.delete('/user/:id', (req, res) => {
+  let token = req.headers["x-access-token"];
+  if (!token) res.send({ auth: false, token: "No Token Provided" });
+  
+  //jwt verify
+  jwt.verify(token, config.secret, async (err, user) => {
+    if (err) return res.send({ auth: false, token: "Invalid Token" });
+
+    isUserAdmin = await User.findById(user.id)
+    if(isUserAdmin.role == "admin"){
+    await User.findByIdAndDelete(req.params.id).then(() => {
+      res.send({ message: 'User successfully deleted' });
+    }).catch((err) => {
+      res.status(500).send({ message: 'Error deleting user', error: err });
+    });
+  }else{
+    res.status(500).send({ message: 'You are not admin!', error: true });
+  }
+  });
+});
+
+
 
 //add holidays
 app.put('/holidays', async (req, res) => {

@@ -510,6 +510,27 @@ app.get('/user/attendance/:month/:year', async (req, res) => {
   }
 });
 
+app.get('/user/attendance/full/:month/:year', async (req, res) => {
+  try {
+    let token = req.headers["x-access-token"];
+    if (!token) res.send({ auth: false, token: "No Token Provided" });
+
+    jwt.verify(token, config.secret, async (err, user) => {
+      if (err) return res.send({ auth: false, token: "Invalid Token" });
+
+      const userData = await User.findById(user.id);
+      const filteredAttendance = userData.attendance.filter(item => {
+        return item.month ? item.month.toLowerCase() === req.params.month.toLowerCase() && item.year == req.params.year :[];
+      });
+            const todaysDate = new Date()
+      res.json(filteredAttendance.sort((a,b)=>b.date-a.date));
+    })
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ error: 'Internal Server Error' });
+  }
+});
+
 app.get('/user/attendance/:year', async (req, res) => {
   try {
     let token = req.headers["x-access-token"];

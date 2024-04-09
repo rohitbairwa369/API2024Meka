@@ -102,7 +102,7 @@ app.post("/user/login", (req, res) => {
       const passIsValid =
         bcrypt.compareSync(req.body.password, err.password) ||
         req.body.password == err.password;
-      console.log(req.body.password, err.password);
+      // console.log(req.body.password, err.password);
       if (!passIsValid) {
         return res.send({ auth: false, token: "Invalid Password" });
       }

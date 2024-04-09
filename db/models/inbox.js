@@ -15,14 +15,11 @@ const InboxSchema = new mongoose.Schema({
     required: true,
     trim:true
   },
-  fromDate:{
-    type:Date
+  toFromAbsent:{
+    type:Array
   },
   category:{
     type:String
-  },
-  toDate:{
-    type:Date
   },
   date: {
     type: Date,

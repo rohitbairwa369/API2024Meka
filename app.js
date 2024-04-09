@@ -36,7 +36,7 @@ app.post("/user/register", async (req, res) => {
   try {
     // Verify token
     let token = req.headers["x-access-token"];
-    if (!token) return res.send({ auth: false, token: "No Token Provided" });
+    if (!token) return res.status(401).json({ auth: false, token: "No Token Provided" });;
     
     const decoded = jwt.verify(token, config.secret);
     const userId = decoded.id;
@@ -117,10 +117,10 @@ app.post("/user/login", (req, res) => {
 
 app.get("/user", (req, res) => {
   let token = req.headers["x-access-token"];
-  if (!token) res.send({ auth: false, token: "No Token Provided" });
+  if (!token)  res.status(401).json({ auth: false, token: "No Token Provided" });
   //jwt verify
   jwt.verify(token, config.secret, (err, user) => {
-    if (err) return res.send({ auth: false, token: "Invalid Token" });
+    if (err) return res.status(401).json({ auth: false, token: "Invalid Token" });
     User.findById(user.id).then((result) => {
       const userData= result;
       let filteredUserData = {}
@@ -210,10 +210,10 @@ app.put('/user', (req, res) => {
   const updateData = req.body;
   let token = req.headers["x-access-token"];
   // console.log(token)
-  if (!token) res.send({ auth: false, token: "No Token Provided" });
+  if (!token)  res.status(401).json({ auth: false, token: "No Token Provided" });
   //jwt verify
   jwt.verify(token, config.secret, async (err, user) => {
-    if (err) return res.send({ auth: false, token: "Invalid Token" });
+    if (err) return res.status(401).json({ auth: false, token: "Invalid Token" });
    
   await User.findByIdAndUpdate(user.id, updateData).then((content) => {
       res.send({'message':'Successfully Updated'})
@@ -225,11 +225,11 @@ app.put('/user', (req, res) => {
 
 app.delete('/user/:id', (req, res) => {
   let token = req.headers["x-access-token"];
-  if (!token) res.send({ auth: false, token: "No Token Provided" });
+  if (!token)  res.status(401).json({ auth: false, token: "No Token Provided" });
   
   //jwt verify
   jwt.verify(token, config.secret, async (err, user) => {
-    if (err) return res.send({ auth: false, token: "Invalid Token" });
+    if (err) return res.status(401).json({ auth: false, token: "Invalid Token" });
 
     isUserAdmin = await User.findById(user.id)
     if(isUserAdmin.role == "admin"){
@@ -327,10 +327,10 @@ app.get('/holidays/reset', async (req, res) => {
 app.put('/user/attendance/clockin/:month/:year', async (req, res) => {
   try {
     let token = req.headers["x-access-token"];
-    if (!token) res.send({ auth: false, token: "No Token Provided" });
+    if (!token)  res.status(401).json({ auth: false, token: "No Token Provided" });
 
     jwt.verify(token, config.secret, async (err, user) => {
-      if (err) return res.send({ auth: false, token: "Invalid Token" });
+      if (err) return res.status(401).json({ auth: false, token: "Invalid Token" });
 
       const updatedUser = await User.findByIdAndUpdate(
         user.id,
@@ -352,9 +352,9 @@ app.put('/user/attendance/clockin/:month/:year', async (req, res) => {
 app.put('/user/attendance/requestleave', async (req, res) => {
   try {
     let token = req.headers["x-access-token"];
-    if (!token) res.send({ auth: false, token: "No Token Provided" });
+    if (!token)  res.status(401).json({ auth: false, token: "No Token Provided" });
     jwt.verify(token, config.secret, async (err, user) => {
-      if (err) return res.send({ auth: false, token: "Invalid Token" });
+      if (err) return res.status(401).json({ auth: false, token: "Invalid Token" });
 
       let canRequest = await User.findById(user.id)
       canRequestBoolean = canRequest.attendance.filter(item=>{
@@ -394,10 +394,10 @@ app.put('/user/attendance/requestleave', async (req, res) => {
 app.put('/user/attendance/in/:tdate', async (req, res) => {
   try {
     const token = req.headers["x-access-token"];
-    if (!token) return res.send({ auth: false, token: "No Token Provided" });
+    if (!token) return res.status(401).json({ auth: false, token: "No Token Provided" });
 
     jwt.verify(token, config.secret, async (err, user) => {
-      if (err) return res.send({ auth: false, token: "Invalid Token" });
+      if (err) return res.status(401).json({ auth: false, token: "Invalid Token" });
 
       const tdate = req.params.tdate;
 
@@ -427,10 +427,10 @@ app.put('/user/attendance/in/:tdate', async (req, res) => {
 app.put('/user/attendance/out/:month/:year/:tdate', async (req, res) => {
   try {
     const token = req.headers["x-access-token"];
-    if (!token) return res.send({ auth: false, token: "No Token Provided" });
+    if (!token) return res.status(401).json({ auth: false, token: "No Token Provided" });
 
     jwt.verify(token, config.secret, async (err, user) => {
-      if (err) return res.send({ auth: false, token: "Invalid Token" });
+      if (err) return res.status(401).json({ auth: false, token: "Invalid Token" });
 
       const tdate = req.params.tdate;
 
@@ -464,7 +464,7 @@ app.put('/user/attendance/out/:month/:year/:tdate', async (req, res) => {
   // Access to this route is only allowed if the token is valid
 app.get('/verify/token', (req, res) => {
   jwt.verify(token, config.secret, async (err, user) => {
-    if (err) return res.send({ auth: false, token: "Invalid Token" });
+    if (err) return res.status(401).json({ auth: false, token: "Invalid Token" });
     const UserData = await User.findById(user.id);
     res.json({auth:true,message:'Access Granted',role:UserData['role']})
   })
@@ -473,10 +473,10 @@ app.get('/verify/token', (req, res) => {
 app.get('/user/attendance/clockin/:month/:year', async (req, res) => {
   try {
     let token = req.headers["x-access-token"];
-    if (!token) res.send({ auth: false, token: "No Token Provided" });
+    if (!token)  res.status(401).json({ auth: false, token: "No Token Provided" });
 
     jwt.verify(token, config.secret, async (err, user) => {
-      if (err) return res.send({ auth: false, token: "Invalid Token" });
+      if (err) return res.status(401).json({ auth: false, token: "Invalid Token" });
       const UserData = await User.findById(user.id);
       const filteredAttendance = UserData.attendance.filter(item => {
         return item.month ? item.month.toLowerCase() === req.params.month.toLowerCase() && item.year == req.params.year :[];
@@ -492,10 +492,10 @@ app.get('/user/attendance/clockin/:month/:year', async (req, res) => {
 app.get('/user/attendance/:month/:year', async (req, res) => {
   try {
     let token = req.headers["x-access-token"];
-    if (!token) res.send({ auth: false, token: "No Token Provided" });
+    if (!token)  res.status(401).json({ auth: false, token: "No Token Provided" });
 
     jwt.verify(token, config.secret, async (err, user) => {
-      if (err) return res.send({ auth: false, token: "Invalid Token" });
+      if (err) return res.status(401).json({ auth: false, token: "Invalid Token" });
 
       const userData = await User.findById(user.id);
       const filteredAttendance = userData.attendance.filter(item => {
@@ -513,10 +513,10 @@ app.get('/user/attendance/:month/:year', async (req, res) => {
 app.get('/user/attendance/full/:month/:year', async (req, res) => {
   try {
     let token = req.headers["x-access-token"];
-    if (!token) res.send({ auth: false, token: "No Token Provided" });
+    if (!token)  res.status(401).json({ auth: false, token: "No Token Provided" });
 
     jwt.verify(token, config.secret, async (err, user) => {
-      if (err) return res.send({ auth: false, token: "Invalid Token" });
+      if (err) return res.status(401).json({ auth: false, token: "Invalid Token" });
 
       const userData = await User.findById(user.id);
       const filteredAttendance = userData.attendance.filter(item => {
@@ -534,10 +534,10 @@ app.get('/user/attendance/full/:month/:year', async (req, res) => {
 app.get('/user/attendance/:year', async (req, res) => {
   try {
     let token = req.headers["x-access-token"];
-    if (!token) res.send({ auth: false, token: "No Token Provided" });
+    if (!token)  res.status(401).json({ auth: false, token: "No Token Provided" });
 
     jwt.verify(token, config.secret, async (err, user) => {
-      if (err) return res.send({ auth: false, token: "Invalid Token" });
+      if (err) return res.status(401).json({ auth: false, token: "Invalid Token" });
 
       const userData = await User.findById(user.id);
       const filteredAttendance = userData.attendance.filter(item => {
@@ -554,10 +554,10 @@ app.get('/user/attendance/:year', async (req, res) => {
 app.get('/user/attendance/absent/:year', async (req, res) => {
   try {
     let token = req.headers["x-access-token"];
-    if (!token) res.send({ auth: false, token: "No Token Provided" });
+    if (!token)  res.status(401).json({ auth: false, token: "No Token Provided" });
 
     jwt.verify(token, config.secret, async (err, user) => {
-      if (err) return res.send({ auth: false, token: "Invalid Token" });
+      if (err) return res.status(401).json({ auth: false, token: "Invalid Token" });
 
       const userData = await User.findById(user.id);
       const filteredAttendance = userData.attendance.filter(item => {
@@ -575,10 +575,10 @@ app.get('/user/attendance/absent/:year', async (req, res) => {
 app.get('/user/attendance/:month/:year/:status', async (req, res) => {
   try {
     let token = req.headers["x-access-token"];
-    if (!token) res.send({ auth: false, token: "No Token Provided" });
+    if (!token)  res.status(401).json({ auth: false, token: "No Token Provided" });
 
     jwt.verify(token, config.secret, async (err, user) => {
-      if (err) return res.send({ auth: false, token: "Invalid Token" });
+      if (err) return res.status(401).json({ auth: false, token: "Invalid Token" });
 
       const userData = await User.findById(user.id);
       const filteredAttendance = userData.attendance.filter(item => {
@@ -602,10 +602,10 @@ app.get('/user/attendance/:month/:year/:status', async (req, res) => {
 app.get('/user/attendance/:month/:year/:id/:status', async (req, res) => {
   try {
     let token = req.headers["x-access-token"];
-    if (!token) res.send({ auth: false, token: "No Token Provided" });
+    if (!token)  res.status(401).json({ auth: false, token: "No Token Provided" });
 
     jwt.verify(token, config.secret, async (err, user) => {
-      if (err) return res.send({ auth: false, token: "Invalid Token" });
+      if (err) return res.status(401).json({ auth: false, token: "Invalid Token" });
 
       const adminData = await User.findById(user.id);
       const holidaysInYear = adminData.holidays;
@@ -656,7 +656,6 @@ app.get('/user/attendance/:month/:year/:id/:status', async (req, res) => {
       }
     })
   } catch (error) {
-    console.error(error);
     res.status(500).json({ error: 'Internal Server Error' });
   }
 });
@@ -691,10 +690,10 @@ app.get('/messages', verifyToken, (req, res) => {
 app.post('/messages', (req, res) => {
 
   let token = req.headers["x-access-token"];
-  if (!token) res.send({ auth: false, token: "No Token Provided" });
+  if (!token)  res.status(401).json({ auth: false, token: "No Token Provided" });
 
   jwt.verify(token, config.secret, async (err, user) => {
-    if (err) return res.send({ auth: false, token: "Invalid Token" });
+    if (err) return res.status(401).json({ auth: false, token: "Invalid Token" });
 
     const userData = await User.findById(user.id);
 
@@ -703,8 +702,7 @@ app.post('/messages', (req, res) => {
       var inboxData = {
         name : userData.name,
         email: userData.email,
-        fromDate: req.body.fromDate,
-        toDate:req.body.toDate,
+        toFromAbsent: req.body.toFromAbsent,
         message : req.body.message,
         category: req.body.category
       }

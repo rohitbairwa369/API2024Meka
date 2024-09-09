@@ -10,7 +10,13 @@ const bodyParser = require("body-parser");
 const { User } = require("./db/models/user");
 const { Inbox } = require("./db/models/inbox");
 
-app.use(cors());
+// CORS configuration
+app.use(cors({
+    origin: 'http://54.145.150.121:3000', // Replace with your HTTPS client origin
+    methods: ['GET', 'POST', 'PUT', 'DELETE'],
+    credentials: true
+}));
+
 // Import the verifyToken middleware
 const verifyToken = require("./middleware/varifyToken");
 
